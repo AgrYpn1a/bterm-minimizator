@@ -1,4 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0m/home/snowball/Data/programming/scala/boolean-term-minimizator/bterm.scala:148:15: value vars is not a member of Seq[Disjunction][0m
-[0m[[0m[31merror[0m] [0m[0m				x.minimal.vars.foreach {[0m
-[0m[[0m[31merror[0m] [0m[0m				          ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
