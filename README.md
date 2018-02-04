@@ -1,0 +1,2 @@
+# bterm-minimizator
+Bterms
