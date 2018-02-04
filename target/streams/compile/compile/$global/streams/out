@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0m/home/snowball/Data/programming/scala/boolean-term-minimizator/bterm.scala:85:18: value conjuncts is not a member of ElementaryConjunction[0m
+[0m[[0m[31merror[0m] [0m[0m			val pairs = a.conjuncts zip b.conjuncts[0m
+[0m[[0m[31merror[0m] [0m[0m			              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/snowball/Data/programming/scala/boolean-term-minimizator/bterm.scala:85:34: value conjuncts is not a member of ElementaryConjunction[0m
+[0m[[0m[31merror[0m] [0m[0m			val pairs = a.conjuncts zip b.conjuncts[0m
+[0m[[0m[31merror[0m] [0m[0m			                              ^[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m
