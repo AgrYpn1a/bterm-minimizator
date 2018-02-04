@@ -22,19 +22,49 @@ case class ElementaryConjunction(vars: SingleTerm*) extends Term {
 }
 
 case class Disjunction(vars: ElementaryConjunction*) extends Term {
-	override def toString = vars.map { _.toString }.mkString("+")
+	override def toString = vars.map { _.toString }.mkString(" ∨ ")
+	def length = vars.map { x => x.length }.sum
 
-	// PROBLEM
-	def primeImplicants = {
-		val pairs = (for{
-				(a, i) <- vars.zipWithIndex; 
-				(b, j) <- vars.zipWithIndex
-				if i < j
-			} yield (a, b))
+	def primeImplicants: Disjunction = {
+		
+		// all possible pairs to check
+		val pairs = (for {
+			(a, i) <- vars.zipWithIndex; 
+			(b, j) <- vars.zipWithIndex
+			if i < j
+		} yield (a, b))
 
-		val primes = Disjunction(pairs.map { case (a, b) => Implicant.findPrime(a, b) }
-			 .filterNot { _ == None }.map { _.get }.toSeq:_*)
+		// Get all implicants from the pairs
+		// and filter elements that matched
+		var matched: List[ElementaryConjunction] = Nil
+		var primes: Seq[ElementaryConjunction] = pairs.map { 
+				case (a, b) => Implicant.findPrime(a, b) match {
+					case Some(x) => 
+						matched = a :: b :: matched
+						Some(x)
+					case None => None
+		}}
+		.filterNot { _ == None }.map { _.get }.toSeq
 
+		// if we haven't found any new implicants,
+		// current DF is contained of prime implicants
+		if(primes.length == 0)
+			return this
+
+		// We found more implicants,
+
+		// based on matched elements, filter those
+		// that didn't match
+		val notMatched: Seq[ElementaryConjunction] = vars.filterNot { 
+			matched.toSet contains _ 
+		}
+
+		// finally, implicants are those that matched
+		// summed to those that didn't match with any
+		var finalPrimes = Disjunction((primes ++ notMatched):_*)
+
+		finalPrimes = finalPrimes.primeImplicants
+		finalPrimes
 	}
 
 	def minimal = {
@@ -51,12 +81,21 @@ case class Disjunction(vars: ElementaryConjunction*) extends Term {
 			x => Disjunction(x.toSeq:_*)
 		}
 
+		var minLength: Int = Int.MaxValue
 		val minimalDfs = possibleMinDfs.filter {
 			df: Disjunction =>
-				conjunctsImplicateFormula(df, this)
+				conjunctsImplicateFormula(df, this) match {
+					case true => 
+						if(df.length < minLength)
+							minLength = df.length
+						true
+					case false => false
+				}
 		}
 
-		minimalDfs
+		minimalDfs.filter { 
+			df: Disjunction => df.length == minLength 
+		}.toSeq
 	}
 
 }
@@ -105,8 +144,9 @@ object Main {
 	def main(args: Array[String]): Unit = {
 		SymbolParser("xyuv + xy'uv + x'yuv' + xy'u'v' + x'yu'v' + xyuv' + xy'uv' + xy'u'v + x'yuv + x'yu'v + x'y'u'v'") match {
 			case Some(x) => 
-				//x.minimal.foreach { println _ }
-				println(x.primeImplicants)
+				x.minimal.foreach {
+					println _ 
+				}
 			case None => 
 		}
 	}
