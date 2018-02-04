@@ -1,0 +1,133 @@
+\documentclass{article}
+
+\usepackage{mathtools}
+\usepackage{scrextend}
+\usepackage{amsmath}
+\usepackage{MnSymbol}
+\usepackage{wasysym}
+\usepackage{amsthm}
+\usepackage{esvect}
+\usepackage[T1]{fontenc}
+
+\title{Automatizacija procesa minimizacije Bulovih terma}
+\date{02.01.2018}
+
+\newtheorem{theorem}{Tvr\dj enje}
+\newtheorem{corollary}{Posledica}
+\newtheorem{lemma}{Lema}
+
+\renewcommand\qedsymbol{$\blacksquare$}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Osnovu funkcionisanja digitalnih sistema cine operacije na skupu $\{0, 1\}$. Pokazano je da takve operacije odgovaraju termima nad Bulovom algebrom $B2$. Moderna industrija digitalne elektronike tezi ka smanjenju dimenzija, te poboljsanju brzine funkcionisanja svojih sistema. Stoga je bitno da termi koji izgradjuju strujna kola na osnovu kojih bilo koja elektronska naprava danas funkcionise budu sto jednostavniji, odnosno da budu $minimalni$. Postoji nekoliko postupaka za minimizaciju jednog terma, a medju najpoznatijima jeste postupak Kvajna i Mak Klaskog, odnosno formiranje tablice prostih implikanti. Ovo je jednostavan, deterministicki algoritam, dakle izvrsava se u konacnom broju koraka, pa ga je moguce zapisati u programskom jeziku.
+\end{abstract}
+
+\subsection{Osnovni pojmovi. Definicije. Notacije.}
+Neka je $B2 = (B2, \wedge, \vee, ', 0, 1)$ Bulova algebra \cite{balgebradef} nad dvoelementim skupom $\{0, 1\}$. Konstante $0$ i $1$ i promenljive $x$, $y$, $z$... su termi. Ako su termi $X$ i $Y$, onda su to i $X \wedge Y$, $X \vee Y$ i $X'$. Svaki Bulov term dobija se konacnom primenom navedenih operacija.
+
+Primenom De Morganovih zakona i distributivnosti, svaki Bulov term moguce je napisati u obliku \textbf{disjunktivne forme} (dalje u tekstu, skraceno DF) tako da operacija $[\cdot ']$ stoji direktno uz promenljive. \cite{df}
+
+Primer
+\begin{align*}
+	f(x, y, z) = x \wedge (y \wedge z)' \Leftrightarrow x \wedge (y' \vee z') \Leftrightarrow (x \wedge y') \vee (x \wedge z')
+\end{align*}
+
+Radi lakseg zapisa, uvedimo notaciju:
+\begin{align*}
+xy := x \wedge y
+\end{align*}
+
+i dogovor o brisanju spoljnih zagrada kod elementarnih konjunkcija. Sada ekvivalentan term mozemo zapisati na sledeci nacin
+\begin{align*}
+xy' \vee xz'
+\end{align*}
+
+
+\subsection{Minimalna disjunktivna foma. Proste implikante.}
+Neka je F Bulov term u obliku DF, oznacimo sa
+\begin{addmargin}[4em]{2em}
+	$p_F$ - ukupan broj pojavljivanja promenljivih u $F$ \\
+	$k_F$ - ukupan broj elementarnih konjunkcija u $F$
+\end{addmargin}
+
+Za Bulove terme $F_1$ i $F_2$ sa, redom, ${p_F}_1$, ${p_F}_2$ i $k_F$, $k_F$ kazemo da je $F_1 \leq F_2$, jednostavniji od, ako ${p_F}_1 \leq {p_F}_2$, ${k_F}_1 \leq {k_F}_2$ i vazi bar jedna striktna nejednakost.
+
+Za disjunktivnu formu $F_min$ kazemo da je minimalna za term $F$ ako je $Fmin = F$ i ne postoji druga, jednostavnija od nje.
+
+Elementarna konjunkcija $f$ je \textbf{implikanta} Bulovog terma $F$ ako vazi $f \leq F$, odnosno $f \wedge F = f$, u skracenoj notaciji $fF = f$.
+\begin{theorem}
+	Elementarna konjunkcija f je implikanta Bulovog terma F ako i samo ako u proizvoljnoj Bulovoj algebri F ima vrednost 1 za svaki niz vrednosti za koji f ima vrednost 1.
+\end{theorem}
+\begin{proof}[Dokaz]
+	Pogledati \cite{dokaz1}
+\end{proof}
+
+Kazemo da je implikanta $f$ \textbf{prosta} implikanta terma $F$ ako ne postoji nijedna potkonjunkcija $f$ takva da je ta potkonjunkcija takodje implikanta.
+
+\begin{theorem}
+	Svaka minimalna DF Bulovog terma F sastavljena je od nekih prostih implikanti tog terma.
+\end{theorem}
+\begin{proof}[Dokaz]
+	Pogledati \cite{dokaz2}
+\end{proof}
+
+\begin{theorem}
+	Neka je F Bulov term koji je KDF u odnosu na promenljive $x_1, x_2, ..., x_n$, f elementarna konjunkcija cije su promenljive neke od navedenih. Tada je f implikanta terma F ako i samo ako su sve kanonske elementarne konjunkcije u odnosu na $x_1, x_2, ..., x_n$ koje sadrze f ukljucene u term F.
+	
+	U osnovi tvrdjenja, zapravo je jednakost
+	\begin{align*}
+		f = f (x \vee x') = fx \vee fx'
+	\end{align*}
+\end{theorem}
+\begin{proof}[Dokaz]
+	Pogledati \cite{dokaz3}
+\end{proof}
+
+\subsection{Realizacija algoritma na racunaru.}
+\subsubsection{Osnovne funkcionalnosti programa.}
+Programu zadajemo Bulov term $F$ u obliku \textbf{kanonske disjunktive forme} \cite{kdf} a kao izlaz ocekujemo sve termove $Fmin$ oblika disjunktive forme, sastavljene od prostih implikanti pocetnog terma $F$, koji su minmalni ekvivalentni termovi, odnosno minimalne disjunktivne forme za $F$.
+
+Radi jednostavnosti, pretpostavicemo da je zadati term zaista Bulov term, i da je on u obliku KDF (trivijalno je modifikovati program, dodavajuci posebne provere koje bi ovo i garantovale). Ovaj term je potrebno pravilno parsirati, odnosno razbiti na kanonske elementarne konjunkcije koje cuvamo u posebnom nizu. Po pretpostavci znamo da su ovi termovi razdvojeni operacijom $\vee$, a nakon ovog koraka nju mozemo zanemariti u daljem razamatranju. 
+
+Vodeci se postupkom Kvajna i Mak Klaskog, trazimo proste implikante od ucitanih kanonskih elementarnih konjunkcija. 
+
+Od nadjenih prostih implikanti, konacno formiramo tablicu prostih implikanti na osnovu koje odredjujemo minimalne forme.
+
+Definisimo \textbf{duzinu} terma, $d(t)$ na kojem se zasniva kasniji poredak. Neka je $t$ najjednostavniji term, $t := Variable | Complement$ duzina ovog terma jeste broj promenljivih, odnosno broj karaktera $a-z$ koji su upotrebljeni za oznacavanje promenljive. Uobicajeno je da duzina ovakvog terma $d(t) = 1$. Duzinu slozenijih terma racunamo na osnovu njegovih podtermova, tako duzinu terma oblika elementarne konjunkcije racunamo kao
+\begin{align*}
+d(t) = \sum_{i=1}^{n} d(t_i)
+\end{align*}
+gde je $d(t_i)$ duzina promenljivih od kojih je sastavljen term. Konacno, duzinu disjunkcije racunamo kao 
+\begin{align*}
+d(t) = \sum_{i=1}^{n} \sum_{j=1}^{m_i} d(t_i)
+\end{align*}
+gde je $n$ broj elementarnih konjunkcija u disjunkciji, a $m_i$ broj promenljivih u trenutnoj elementarnoj konjunkciji.
+
+\subsubsection{Opis potrebnih elemenata i implementacija u jeziku Scala.}
+Razlikujemo dve vrste promenljivih, promenljivu $x$ i njen komplement $x'$, stoga, predstavimo ih klasama \textit{Variable(string)} i \textit{Complement(Variable)}.
+
+Termove koji od veznika sadrze samo konjunkcije, zovemo elementarne konjunkcije i predstavljamo klasom \textit{ElementaryConjunction ($t_1, t_2, ..., t_n$)} i slicno tome, predstavimo termove koji su oblika disjunktivne forme klasom \textit{DisjunctiveForm ($e_1, e_2, ..., e_n$)}, gde su $t_1, ..., t_n := Variable | Complement(Variable)$, a $e_1, ..., e_n$ elementarne konjunkcije.
+
+Nakon parsiranja zadatog terma dobijamo objekat klase \textit{Disjunction} pa nad njim radimo minmizaciju.
+
+\subsubsection{Trazenje prostih implikanti.}
+Prema postupku Kvajna i Mak Klaskog kanonske elementarne konjunkcije pocetne formule $F$ oblika KDF potrebno je grupisati prema broju operacija $[\cdot ']$ (komplement), pa onda uporedjivati svaku od njih sa svakom iz grupe sa tacno jednim vise pojavljivanjem operacije $[\cdot ']$, prema tvrdjenju T3.
+
+Ovo radimo prostom proverom svake sa svakom kako ne bismo prvobitnim grupisanjem usporavali rad algoritma na racunaru. Posto svaki par proveravamo samo jednom, ovaj korak izvrsice se u linearnom vremenu.
+
+Funkcija \textit{primeImplicants()} sastavni je deo klase \textit{Disjunction} i vraca proste implikante disjunkcije nad kojom je pozvana.
+
+\subsubsection{Minimizacija terma.}
+Nakon sto smo pronasli proste implikante za term, potrebno je napraviti tablicu na osnovu koje cemo odrediti minimalne forme. Prema postupku Kvajna i Mak Klaskog prvo treba potraziti one proste implikante koje same "pokrivaju" neku od kanonskih elementarnih konjunkcija i oznaciti ih kao \textbf{esencijalne}; one moraju ucestvovati u konacnoj formuli. Nakon toga, potrebno je pronaci sve kombinacije preostalih prostih implikanti koje pokrivaju ostatak pocetne formule te dodati na esencijalne, i odabrati najjednostavnije. 
+
+Posto nam vizuelni prikaz nije bitan, mozemo preskociti prvi korak odvajanja esencijalnih prostih implikanti.
+
+Generisimo partitivni skup $\mathcal{P}(I)$ svih prostih implikanti dobijenih u prethodnom koraku. Prodjimo kroz sve podskupove partitivnog skupa i proverimo da li sve proste implikante tog podskupa zadovoljavaju tvrdjenje T1. Ako je odgovor pozitivan, izdvojimo ih. Medju ovima, treba uociti najjednostavniju te na osnovu njene duzine izdvojiti i ostale iste duzine. Konacno, program nam vraca sve minimalne disjunktivne forme.
+\subsection{Detaljan pregled i implementacija funkcionalnosti na jeziku Scala.}
+to do...
+
+
+\end{document}
+
